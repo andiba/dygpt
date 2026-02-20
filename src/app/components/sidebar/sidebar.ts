@@ -223,7 +223,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.firstPrompts.get(convId) || '';
   }
 
+  /** IDs that returned 500 – never retry these */
+  private failedPromptIds = new Set<string>();
+
   private loadFirstPrompt(botName: string, convId: string) {
+    // Skip permanently failed conversations
+    if (this.failedPromptIds.has(convId)) {
+      this.firstPrompts.set(convId, '');
+      return;
+    }
+
     this.api.getConversationMessages(botName, convId).subscribe({
       next: (messages: any) => {
         // Handle array or object response
@@ -239,10 +248,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
           const text = firstUserMsg.content || firstUserMsg.text || '';
           this.firstPrompts.set(convId, text);
           this.cdr.detectChanges();
+        } else {
+          this.firstPrompts.set(convId, '');
         }
       },
       error: () => {
-        // Mark as attempted so we don't retry on failed conversations
+        // Mark as permanently failed so we never retry
+        this.failedPromptIds.add(convId);
         this.firstPrompts.set(convId, '');
       }
     });
