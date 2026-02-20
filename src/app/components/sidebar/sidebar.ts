@@ -5,7 +5,8 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { GptOrchestrator } from '../../services/gpt-orchestrator';
 import { ApiService } from '../../services/api';
-import { GPT, Conversation } from '../../models';
+import { TenantService } from '../../services/tenant.service';
+import { GPT, Conversation, Department } from '../../models';
 
 @Component({
   selector: 'app-sidebar',
@@ -16,11 +17,13 @@ import { GPT, Conversation } from '../../models';
 export class SidebarComponent implements OnInit, OnDestroy {
   private orchestrator = inject(GptOrchestrator);
   private api = inject(ApiService);
+  private tenantService = inject(TenantService);
   private router = inject(Router);
   private location = inject(Location);
   private cdr = inject(ChangeDetectorRef);
   private convUpdateSub?: Subscription;
   private routerSub?: Subscription;
+  private deptSub?: Subscription;
 
   conversations = new Map<string, Conversation[]>();
   expanded = new Set<string>();
@@ -30,15 +33,25 @@ export class SidebarComponent implements OnInit, OnDestroy {
   activeBotName = '';
   activeConversationId = '';
 
+  // Department switcher
+  departments: Department[] = [];
+  activeDepartment: Department | null = null;
+  showDeptDropdown = false;
+
   get gpts(): GPT[] {
     return this.orchestrator.getGpts();
   }
 
   ngOnInit() {
-    // Load conversations for all GPTs
-    for (const gpt of this.gpts) {
-      this.loadConversations(gpt.chatbotName);
-    }
+    // Subscribe to department changes
+    this.deptSub = this.tenantService.departmentChanged$.subscribe(dept => {
+      this.activeDepartment = dept;
+      this.departments = this.tenantService.getDepartments();
+      if (dept) {
+        this.reloadAllData();
+      }
+      this.cdr.detectChanges();
+    });
 
     // Re-load conversations when a message is sent (so updated conversation jumps to top)
     this.convUpdateSub = this.api.conversationUpdated$.subscribe(botName => {
@@ -59,6 +72,34 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.convUpdateSub?.unsubscribe();
     this.routerSub?.unsubscribe();
+    this.deptSub?.unsubscribe();
+  }
+
+  // ── Department Switcher ──
+
+  switchDepartment(dept: Department) {
+    this.showDeptDropdown = false;
+    this.tenantService.setActiveDepartment(dept.id);
+    this.router.navigate(['/chat']);
+  }
+
+  goToDepartments() {
+    this.showDeptDropdown = false;
+    this.router.navigate(['/departments']);
+  }
+
+  private reloadAllData() {
+    // Clear all cached data
+    this.conversations.clear();
+    this.expanded.clear();
+    this.formattedDates.clear();
+    this.conversationCounts.clear();
+    this.firstPrompts.clear();
+
+    // Reload GPTs and conversations for new department
+    for (const gpt of this.gpts) {
+      this.loadConversations(gpt.chatbotName);
+    }
   }
 
   private updateActiveRoute(url: string) {

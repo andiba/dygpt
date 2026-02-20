@@ -1,0 +1,93 @@
+<div class="dept-page">
+  <div class="dept-container">
+    <!-- Header -->
+    <div class="dept-header">
+      <img src="logo.png" alt="DYGPT Logo" class="dept-logo" width="1696" height="608">
+      <h1>Abteilung wählen</h1>
+      <p>Wähle eine bestehende Abteilung oder richte eine neue ein.</p>
+    </div>
+
+    <!-- Department Cards -->
+    @if (departments.length > 0) {
+      <div class="dept-grid">
+        @for (dept of departments; track dept.id) {
+          <button class="dept-card" (click)="selectDepartment(dept)">
+            <div class="dept-card-header">
+              <span class="material-icons-round dept-card-icon">business</span>
+              <button class="dept-card-delete" (click)="deleteDepartment($event, dept)" title="Entfernen">
+                <span class="material-icons-round">close</span>
+              </button>
+            </div>
+            <span class="dept-card-name">{{ dept.name }}</span>
+            <span class="dept-card-tenant">{{ dept.tenant }}</span>
+            <span class="dept-card-url">{{ dept.baseUrl }}</span>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Setup Form -->
+    @if (showSetupForm) {
+      <div class="dept-form">
+        <h2>Abteilung einrichten</h2>
+        <p class="form-hint-block">
+          <span class="material-icons-round">info</span>
+          Der Mandant muss zuvor im Docufy AI Service angelegt worden sein.
+          Die Zugangsdaten erhältst du von deinem Administrator.
+        </p>
+
+        <div class="form-group">
+          <label>Abteilungsname</label>
+          <input type="text" class="form-control" [(ngModel)]="newDept.name"
+                 (ngModelChange)="onNameChange()" placeholder="z.B. Marketing, HR, Entwicklung">
+          <div class="form-hint">Ein frei wählbarer Name für die Anzeige in der App</div>
+        </div>
+
+        <div class="form-group">
+          <label>API Base URL</label>
+          <input type="text" class="form-control" [(ngModel)]="newDept.baseUrl"
+                 placeholder="https://master-docufy-ai.dev.tp-platform.de">
+          <div class="form-hint">Die Basis-URL des Docufy AI Service</div>
+        </div>
+
+        <div class="form-group">
+          <label>Tenant / Mandant</label>
+          <input type="text" class="form-control" [(ngModel)]="newDept.tenant"
+                 placeholder="Der Name des Mandanten">
+          <div class="form-hint">Wird automatisch aus dem Abteilungsnamen vorgeschlagen – kann manuell angepasst werden</div>
+        </div>
+
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" class="form-control" [(ngModel)]="newDept.apiKey"
+                 placeholder="Der API-Key für diesen Mandanten">
+          <div class="form-hint">Den API-Key erhältst du vom Administrator des Docufy AI Service</div>
+        </div>
+
+        <div class="form-group">
+          <label>Embedding Model</label>
+          <select class="form-control" [(ngModel)]="newDept.embeddingModel">
+            @for (model of embeddingModels; track model.value) {
+              <option [value]="model.value">{{ model.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-outline" (click)="toggleSetupForm()">Abbrechen</button>
+          <button class="btn btn-primary"
+                  [disabled]="!newDept.name || !newDept.tenant || !newDept.apiKey"
+                  (click)="setupDepartment()">
+            <span class="material-icons-round">check</span>
+            Abteilung einrichten
+          </button>
+        </div>
+      </div>
+    } @else {
+      <button class="btn btn-primary dept-create-btn" (click)="toggleSetupForm()">
+        <span class="material-icons-round">add_circle</span>
+        Abteilung einrichten
+      </button>
+    }
+  </div>
+</div>

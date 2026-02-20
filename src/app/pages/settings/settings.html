@@ -4,80 +4,108 @@
       <span class="material-icons-round">settings</span>
       Einstellungen
     </h1>
-    <p class="subtitle">Verbindung zum Docufy AI Service konfigurieren</p>
 
-    <!-- Connection Settings -->
-    <div class="settings-section">
-      <h3><span class="material-icons-round">cloud</span> Verbindung</h3>
+    @if (activeDepartment) {
+      <p class="subtitle">Konfiguration für <strong>{{ activeDepartment.name }}</strong></p>
 
-      <div class="form-group">
-        <label>API Base URL</label>
-        <input class="form-control" [(ngModel)]="config.baseUrl"
-               placeholder="https://master-docufy-ai.dev.tp-platform.de">
-        <div class="form-hint">Die Basis-URL des Docufy AI Service</div>
+      <!-- Department Info -->
+      <div class="settings-section">
+        <h3><span class="material-icons-round">business</span> Abteilung</h3>
+
+        <div class="form-group">
+          <label>Abteilungsname</label>
+          <input class="form-control" [(ngModel)]="deptName" placeholder="Name der Abteilung">
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Tenant</label>
-        <input class="form-control" [(ngModel)]="config.tenant"
-               placeholder="default">
-        <div class="form-hint">Der Mandant / Tenant-Name</div>
+      <!-- Connection Settings (readonly) -->
+      <div class="settings-section">
+        <h3><span class="material-icons-round">cloud</span> Verbindung</h3>
+        <div class="readonly-hint">
+          <span class="material-icons-round">info</span>
+          Diese Werte wurden bei der Erstellung der Abteilung festgelegt und können auf der
+          <a routerLink="/departments">Abteilungs-Seite</a> verwaltet werden.
+        </div>
+
+        <div class="form-group">
+          <label>API Base URL</label>
+          <input class="form-control readonly" [value]="baseUrl" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Tenant</label>
+          <input class="form-control readonly" [value]="tenant" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>API Key</label>
+          <input class="form-control readonly" [value]="maskedApiKey" readonly>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>API Key</label>
-        <input class="form-control" [(ngModel)]="config.apiKey" type="password"
-               placeholder="Dein API-Key">
-        <div class="form-hint">Der x-api-key Header-Wert für die Authentifizierung</div>
-      </div>
-    </div>
+      <!-- AI Model Settings -->
+      <div class="settings-section">
+        <h3><span class="material-icons-round">psychology</span> KI-Modell</h3>
 
-    <!-- AI Model Settings -->
-    <div class="settings-section">
-      <h3><span class="material-icons-round">psychology</span> KI-Modell</h3>
+        <div class="form-group">
+          <label>Embedding-Modell</label>
+          <select class="form-control" [(ngModel)]="embeddingModel">
+            @for (model of embeddingModels; track model.value) {
+              <option [value]="model.value">{{ model.label }}</option>
+            }
+          </select>
+          <div class="form-hint">Das Modell für die Vektorisierung neuer Such-Indizes</div>
+        </div>
 
-      <div class="form-group">
-        <label>Embedding-Modell</label>
-        <select class="form-control" [(ngModel)]="config.embeddingModel">
+        <div class="model-info">
           @for (model of embeddingModels; track model.value) {
-            <option [value]="model.value">{{ model.label }}</option>
-          }
-        </select>
-        <div class="form-hint">Das Modell für die Vektorisierung neuer Such-Indizes</div>
-      </div>
-
-      <div class="model-info">
-        @for (model of embeddingModels; track model.value) {
-          @if (model.value === config.embeddingModel) {
-            <div class="model-detail">
-              <span class="material-icons-round">info</span>
-              <div>
-                <strong>{{ model.label }}</strong>
-                <p>{{ model.desc }}</p>
-                <code>{{ model.value }}</code>
+            @if (model.value === embeddingModel) {
+              <div class="model-detail">
+                <span class="material-icons-round">info</span>
+                <div>
+                  <strong>{{ model.label }}</strong>
+                  <p>{{ model.desc }}</p>
+                  <code>{{ model.value }}</code>
+                </div>
               </div>
-            </div>
+            }
           }
-        }
+        </div>
       </div>
-    </div>
 
-    <div class="actions">
-      <button class="btn btn-primary" (click)="saveAndGo()">
-        <span class="material-icons-round">check</span>
-        Speichern & Weiter
-      </button>
-      <button class="btn btn-outline" (click)="save()">
-        <span class="material-icons-round">save</span>
-        Nur Speichern
-      </button>
-    </div>
+      <div class="actions">
+        <button class="btn btn-primary" (click)="saveAndGo()">
+          <span class="material-icons-round">check</span>
+          Speichern & Weiter
+        </button>
+        <button class="btn btn-outline" (click)="save()">
+          <span class="material-icons-round">save</span>
+          Nur Speichern
+        </button>
+      </div>
 
-    @if (saveSuccess) {
-      <div class="success-msg animate-fade-in">
-        <span class="material-icons-round">check_circle</span>
-        Einstellungen gespeichert!
+      @if (saveSuccess) {
+        <div class="success-msg animate-fade-in">
+          <span class="material-icons-round">check_circle</span>
+          Einstellungen gespeichert!
+        </div>
+      }
+    } @else {
+      <p class="subtitle">Keine Abteilung aktiv.</p>
+      <div class="actions">
+        <button class="btn btn-primary" (click)="goToDepartments()">
+          <span class="material-icons-round">business</span>
+          Abteilung wählen
+        </button>
       </div>
     }
+
+    <!-- Link to department management -->
+    <div class="dept-link">
+      <a routerLink="/departments">
+        <span class="material-icons-round">swap_horiz</span>
+        Abteilungen verwalten
+      </a>
+    </div>
   </div>
 </div>

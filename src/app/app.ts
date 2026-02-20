@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { SidebarComponent } from './components/sidebar/sidebar';
 
 @Component({
@@ -8,4 +9,16 @@ import { SidebarComponent } from './components/sidebar/sidebar';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {}
+export class App {
+  private router = inject(Router);
+  showSidebar = false;
+
+  constructor() {
+    // Hide sidebar on department selector page
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: NavigationEnd) => {
+        this.showSidebar = !e.urlAfterRedirects.startsWith('/departments');
+      });
+  }
+}

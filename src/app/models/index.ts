@@ -2,6 +2,17 @@
 // DYGPT Data Models
 // ============================================
 
+// Department / Mandant
+export interface Department {
+  id: string;              // crypto.randomUUID()
+  name: string;            // z.B. "Marketing", "HR", "Produktentwicklung"
+  baseUrl: string;         // Backend-URL
+  tenant: string;          // Backend Tenant-Name
+  apiKey: string;          // x-api-key für diese Abteilung
+  embeddingModel: string;  // Embedding-Model für neue Search Indices
+  createdAt: string;       // ISO 8601
+}
+
 export interface DocumentPool {
   name: string;
   systemPool?: boolean;

@@ -1,5 +1,7 @@
-<div class="app-shell">
-  <app-sidebar></app-sidebar>
+<div class="app-shell" [class.no-sidebar]="!showSidebar">
+  @if (showSidebar) {
+    <app-sidebar></app-sidebar>
+  }
   <main class="app-main">
     <router-outlet />
   </main>

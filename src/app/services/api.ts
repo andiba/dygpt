@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import {
   DocumentPool, SearchIndex, Promptlet, Chatbot,
   Conversation
 } from '../models';
+import { TenantService } from './tenant.service';
 
 export interface DygptConfig {
   baseUrl: string;
@@ -17,10 +18,12 @@ const DEFAULT_EMBEDDING_MODEL = 'intfloat/multilingual-e5-large';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = 'https://master-docufy-ai.dev.tp-platform.de';
-  private tenant = 'default';
+  private baseUrl = '';
+  private tenant = '';
   private apiKey = '';
   private embeddingModel = DEFAULT_EMBEDDING_MODEL;
+
+  private tenantService = inject(TenantService);
 
   /** Emits the botName whenever a conversation is updated (new message sent) */
   private _conversationUpdated = new Subject<string>();
@@ -31,22 +34,21 @@ export class ApiService {
   }
 
   constructor(private http: HttpClient) {
-    const saved = localStorage.getItem('dygpt_config');
-    if (saved) {
-      const config = JSON.parse(saved);
-      this.baseUrl = config.baseUrl || this.baseUrl;
-      this.tenant = config.tenant || this.tenant;
-      this.apiKey = config.apiKey || this.apiKey;
-      this.embeddingModel = config.embeddingModel || DEFAULT_EMBEDDING_MODEL;
-    }
-  }
-
-  configure(config: DygptConfig): void {
-    this.baseUrl = config.baseUrl;
-    this.tenant = config.tenant;
-    this.apiKey = config.apiKey;
-    this.embeddingModel = config.embeddingModel;
-    localStorage.setItem('dygpt_config', JSON.stringify(config));
+    // Subscribe to department changes from TenantService
+    this.tenantService.departmentChanged$.subscribe(dept => {
+      if (dept) {
+        this.baseUrl = dept.baseUrl;
+        this.tenant = dept.tenant;
+        this.apiKey = dept.apiKey;
+        this.embeddingModel = dept.embeddingModel;
+        console.log(`[API] Department switched to: ${dept.name} (${dept.tenant})`);
+      } else {
+        this.baseUrl = '';
+        this.tenant = '';
+        this.apiKey = '';
+        this.embeddingModel = DEFAULT_EMBEDDING_MODEL;
+      }
+    });
   }
 
   getConfig(): DygptConfig {

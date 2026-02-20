@@ -5,6 +5,33 @@
     <span class="logo-text">DYGPT</span>
   </div>
 
+  <!-- Department Switcher -->
+  @if (activeDepartment) {
+    <div class="dept-switcher">
+      <button class="dept-current" (click)="showDeptDropdown = !showDeptDropdown">
+        <span class="material-icons-round">business</span>
+        <span class="dept-name">{{ activeDepartment.name }}</span>
+        <span class="material-icons-round dept-arrow">{{ showDeptDropdown ? 'expand_less' : 'expand_more' }}</span>
+      </button>
+
+      @if (showDeptDropdown) {
+        <div class="dept-dropdown">
+          @for (dept of departments; track dept.id) {
+            <button class="dept-option" [class.active]="dept.id === activeDepartment!.id" (click)="switchDepartment(dept)">
+              <span class="material-icons-round">{{ dept.id === activeDepartment!.id ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+              <span>{{ dept.name }}</span>
+            </button>
+          }
+          <div class="dept-divider"></div>
+          <button class="dept-option dept-manage" (click)="goToDepartments()">
+            <span class="material-icons-round">settings</span>
+            <span>Abteilungen verwalten</span>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
   <!-- Main Nav -->
   <div class="sidebar-nav">
     <a routerLink="/chat" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">

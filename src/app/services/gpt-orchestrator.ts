@@ -1,13 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api';
+import { TenantService } from './tenant.service';
 import { firstValueFrom } from 'rxjs';
 import { GPT, GptWizardState } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class GptOrchestrator {
-  private readonly STORAGE_KEY = 'dygpt_gpts';
+  private tenantService = inject(TenantService);
 
   constructor(private api: ApiService) {}
+
+  /** Dynamic storage key based on active department */
+  private get storageKey(): string {
+    const dept = this.tenantService.getActiveDepartment();
+    return dept ? `dygpt_gpts_${dept.id}` : 'dygpt_gpts_none';
+  }
 
   /**
    * Creates a complete GPT by orchestrating 4 API calls:
@@ -168,9 +175,9 @@ export class GptOrchestrator {
     console.log('[GPT Orchestrator] GPT deleted');
   }
 
-  // Local storage management for GPT metadata
+  // Local storage management for GPT metadata (department-scoped)
   getGpts(): GPT[] {
-    const data = localStorage.getItem(this.STORAGE_KEY);
+    const data = localStorage.getItem(this.storageKey);
     return data ? JSON.parse(data) : [];
   }
 
@@ -181,12 +188,12 @@ export class GptOrchestrator {
   saveGpt(gpt: GPT): void {
     const gpts = this.getGpts().filter(g => g.name !== gpt.name);
     gpts.push(gpt);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(gpts));
+    localStorage.setItem(this.storageKey, JSON.stringify(gpts));
   }
 
   removeGpt(name: string): void {
     const gpts = this.getGpts().filter(g => g.name !== name);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(gpts));
+    localStorage.setItem(this.storageKey, JSON.stringify(gpts));
   }
 
   private sanitizeName(name: string): string {
