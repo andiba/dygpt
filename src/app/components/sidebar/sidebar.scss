@@ -179,12 +179,24 @@
   .conv-info {
     min-width: 0;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
 
     .conv-date {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.7;
+    }
+
+    .conv-prompt {
       font-size: 12px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: block;
     }
   }
 }

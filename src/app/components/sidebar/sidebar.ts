@@ -26,6 +26,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   expanded = new Set<string>();
   formattedDates = new Map<string, string>();
   conversationCounts = new Map<string, number>();
+  firstPrompts = new Map<string, string>();
   activeBotName = '';
   activeConversationId = '';
 
@@ -109,6 +110,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
         for (const conv of sorted) {
           this.formattedDates.set(conv.id, this.formatDate(conv.lastModificationDate || conv.creationDate));
         }
+        // Load first prompts only for visible conversations (max 3)
+        const visible = this.expanded.has(botName) ? sorted : sorted.slice(0, 3);
+        for (const conv of visible) {
+          if (!this.firstPrompts.has(conv.id)) {
+            this.loadFirstPrompt(botName, conv.id);
+          }
+        }
         console.log(`[Sidebar] ${botName}: ${sorted.length} conversations loaded`);
         this.cdr.detectChanges();
       },
@@ -140,6 +148,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.expanded.delete(botName);
     } else {
       this.expanded.add(botName);
+      // Load first prompts for newly visible conversations
+      const all = this.getConversations(botName);
+      for (const conv of all) {
+        if (!this.firstPrompts.has(conv.id)) {
+          this.loadFirstPrompt(botName, conv.id);
+        }
+      }
     }
   }
 
@@ -161,6 +176,35 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   getFormattedDate(convId: string): string {
     return this.formattedDates.get(convId) || '';
+  }
+
+  getFirstPrompt(convId: string): string {
+    return this.firstPrompts.get(convId) || '';
+  }
+
+  private loadFirstPrompt(botName: string, convId: string) {
+    this.api.getConversationMessages(botName, convId).subscribe({
+      next: (messages: any) => {
+        // Handle array or object response
+        let msgs: any[] = [];
+        if (Array.isArray(messages)) {
+          msgs = messages;
+        } else if (messages && Array.isArray(messages.content)) {
+          msgs = messages.content;
+        }
+        // Find first user message
+        const firstUserMsg = msgs.find((m: any) => m.role === 'USER' || m.role === 'user');
+        if (firstUserMsg) {
+          const text = firstUserMsg.content || firstUserMsg.text || '';
+          this.firstPrompts.set(convId, text);
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        // Mark as attempted so we don't retry on failed conversations
+        this.firstPrompts.set(convId, '');
+      }
+    });
   }
 
   private formatDate(dateStr?: string): string {

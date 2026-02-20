@@ -35,10 +35,13 @@
         @if (getConversations(gpt.chatbotName).length > 0) {
           <div class="conv-list">
             @for (conv of getVisibleConversations(gpt.chatbotName); track conv.id) {
-              <button class="conv-item" [class.active]="isActiveConversation(gpt.chatbotName, conv.id)" (click)="openConversation(gpt.chatbotName, conv.id)">
+              <button class="conv-item" [class.active]="isActiveConversation(gpt.chatbotName, conv.id)" [title]="getFirstPrompt(conv.id)" (click)="openConversation(gpt.chatbotName, conv.id)">
                 <span class="material-icons-round conv-icon">forum</span>
                 <div class="conv-info">
                   <span class="conv-date">{{ getFormattedDate(conv.id) }}</span>
+                  @if (getFirstPrompt(conv.id)) {
+                    <span class="conv-prompt">{{ getFirstPrompt(conv.id) }}</span>
+                  }
                 </div>
               </button>
             }
