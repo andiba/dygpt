@@ -15,11 +15,25 @@
 .welcome-content {
   text-align: center;
   max-width: 600px;
+  position: relative;
 
-  .welcome-icon {
-    font-size: 64px;
-    display: block;
-    margin-bottom: 16px;
+  .home-btn {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--dy-gray-200);
+    background: white;
+    color: var(--dy-gray-500);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+
+    &:hover { background: var(--dy-gray-50); color: var(--dy-lime-dark, #9aaa1a); border-color: var(--dy-lime); }
   }
 
   .welcome-logo {

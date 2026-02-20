@@ -244,10 +244,12 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
     } catch (e) {}
   }
 
-  newConversation() {
-    if (this.currentGpt) {
-      this.router.navigate(['/chat', this.currentGpt.chatbotName]);
-    }
+  goHome() {
+    this.router.navigate(['/chat']);
+  }
+
+  goToDepartments() {
+    this.router.navigate(['/departments']);
   }
 
   onKeydown(event: KeyboardEvent) {
