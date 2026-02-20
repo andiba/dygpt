@@ -1,0 +1,243 @@
+<div class="wizard-page">
+  <a routerLink="/admin" class="back-link">
+    <span class="material-icons-round">arrow_back</span>
+    Zurück zur Übersicht
+  </a>
+
+  <div class="wizard-card">
+    <div class="wizard-header">
+      <h1>Neuen DYGPT erstellen</h1>
+      <p>Konfiguriere deinen DYGPT in wenigen Schritten</p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      @for (step of steps; track step.num) {
+        <div class="step-item" [class.done]="currentStep > step.num" [class.active]="currentStep === step.num" [class.pending]="currentStep < step.num">
+          <div class="step-dot">
+            @if (currentStep > step.num) {
+              <span class="material-icons-round">check</span>
+            } @else {
+              {{ step.num }}
+            }
+          </div>
+          <span class="step-label">{{ step.label }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Step 1: Basics -->
+    @if (currentStep === 1) {
+      <div class="step-content animate-fade-in">
+        <div class="form-group">
+          <label>Name des DYGPT *</label>
+          <input class="form-control" [(ngModel)]="wizard.displayName" placeholder="z.B. Handbuch-Assistent" autofocus>
+          <div class="form-hint">Der angezeigte Name deines DYGPTs</div>
+        </div>
+
+        <div class="form-group">
+          <label>Beschreibung</label>
+          <input class="form-control" [(ngModel)]="wizard.description" placeholder="z.B. Beantwortet Fragen zu technischen Handbüchern">
+        </div>
+
+        <div class="form-group">
+          <label>Sprache</label>
+          <select class="form-control" [(ngModel)]="wizard.language">
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Sichtbarkeit</label>
+          <select class="form-control" [(ngModel)]="wizard.visibility">
+            <option value="all">Alle Mitarbeiter</option>
+            <option value="team">Nur mein Team</option>
+            <option value="private">Nur ich</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label>Icon</label>
+            <div class="icon-picker">
+              @for (icon of availableIcons; track icon) {
+                <button class="icon-option" [class.selected]="wizard.icon === icon" (click)="selectIcon(icon)">
+                  {{ icon }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Farbe</label>
+            <div class="color-picker">
+              @for (color of availableColors; track color) {
+                <button class="color-option" [class.selected]="wizard.color === color" [style.background]="color" (click)="selectColor(color)"></button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-card">
+          <span class="preview-icon" [style.background]="wizard.color">{{ wizard.icon }}</span>
+          <div>
+            <strong>{{ wizard.displayName || 'DYGPT Name' }}</strong>
+            <div style="font-size: 12px; color: var(--dy-gray-500);">{{ wizard.description || 'Beschreibung...' }}</div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 2: System Prompt -->
+    @if (currentStep === 2) {
+      <div class="step-content animate-fade-in">
+        <div class="form-group">
+          <label>System-Prompt *</label>
+          <textarea class="form-control" [(ngModel)]="wizard.systemPrompt" rows="10"
+                    placeholder="Du bist ein hilfreicher Assistent für...
+
+Beantworte Fragen präzise und verweise auf die entsprechenden Quellen.
+
+Wenn du dir nicht sicher bist, sage ehrlich dass du die Information nicht findest."></textarea>
+          <div class="form-hint">
+            Definiert das Verhalten und die Persönlichkeit deines DYGPTs.
+            Der System-Prompt wird bei jeder Unterhaltung mitgesendet.
+          </div>
+        </div>
+
+        <div class="prompt-tips">
+          <h4><span class="material-icons-round">lightbulb</span> Tipps für gute System-Prompts</h4>
+          <ul>
+            <li>Definiere die <strong>Rolle</strong> klar ("Du bist ein Experte für...")</li>
+            <li>Beschreibe das gewünschte <strong>Verhalten</strong> bei Unsicherheit</li>
+            <li>Füge <strong>Formatierungshinweise</strong> hinzu (Listen, Schritte, etc.)</li>
+            <li>Erwähne, dass auf <strong>Quellen</strong> verwiesen werden soll</li>
+          </ul>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Documents -->
+    @if (currentStep === 3) {
+      <div class="step-content animate-fade-in">
+        <div class="upload-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+          <span class="material-icons-round upload-icon">cloud_upload</span>
+          <p class="upload-title">Dateien hierher ziehen</p>
+          <p class="upload-hint">oder klicken zum Auswählen</p>
+          <input type="file" multiple (change)="onFilesSelected($event)" class="file-input" #fileInput>
+          <button class="btn btn-outline btn-sm" (click)="fileInput.click()" style="margin-top: 12px;">
+            <span class="material-icons-round">attach_file</span>
+            Dateien auswählen
+          </button>
+          <p class="upload-formats">PDF, DOCX, TXT, MD, HTML · Max 50 MB pro Datei</p>
+        </div>
+
+        @if (wizard.files.length > 0) {
+          <div class="file-list">
+            <div class="file-list-header">
+              <strong>{{ wizard.files.length }} Datei(en) ausgewählt</strong>
+            </div>
+            @for (file of wizard.files; track $index) {
+              <div class="file-item">
+                <span class="material-icons-round file-icon">description</span>
+                <div class="file-info">
+                  <span class="file-name">{{ file.name }}</span>
+                  <span class="file-size">{{ formatSize(file.size) }}</span>
+                </div>
+                <button class="btn btn-icon" (click)="removeFile($index)">
+                  <span class="material-icons-round" style="color: var(--dy-danger);">close</span>
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="info-box">
+          <span class="material-icons-round">info</span>
+          <p>Dokumente können auch später hinzugefügt werden. Dieser Schritt ist optional.</p>
+        </div>
+      </div>
+    }
+
+    <!-- Step 4: Review & Create -->
+    @if (currentStep === 4) {
+      <div class="step-content animate-fade-in">
+        <h3>Zusammenfassung</h3>
+
+        <div class="summary">
+          <div class="summary-row">
+            <span class="summary-label">Name</span>
+            <span class="summary-value">
+              <span class="preview-icon-sm" [style.background]="wizard.color">{{ wizard.icon }}</span>
+              {{ wizard.displayName }}
+            </span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Beschreibung</span>
+            <span class="summary-value">{{ wizard.description || '—' }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Sprache</span>
+            <span class="summary-value">{{ wizard.language === 'de' ? 'Deutsch' : wizard.language === 'en' ? 'English' : wizard.language }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Sichtbarkeit</span>
+            <span class="summary-value">{{ wizard.visibility === 'all' ? 'Alle Mitarbeiter' : wizard.visibility === 'team' ? 'Nur mein Team' : 'Nur ich' }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">System-Prompt</span>
+            <span class="summary-value prompt-preview">{{ wizard.systemPrompt }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Dokumente</span>
+            <span class="summary-value">{{ wizard.files.length }} Datei(en)</span>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 20px;">
+          <span class="material-icons-round">engineering</span>
+          <p>Beim Erstellen werden automatisch ein Dokumenten-Pool, ein Such-Index, ein Promptlet und ein Chatbot im AI Service angelegt.</p>
+        </div>
+
+        @if (error) {
+          <div class="error-box">
+            <span class="material-icons-round">error</span>
+            {{ error }}
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="wizard-actions">
+      @if (currentStep > 1) {
+        <button class="btn btn-outline" (click)="prev()" [disabled]="isCreating">
+          <span class="material-icons-round">arrow_back</span>
+          Zurück
+        </button>
+      } @else {
+        <div></div>
+      }
+
+      @if (currentStep < totalSteps) {
+        <button class="btn btn-primary" (click)="next()" [disabled]="!canProceed">
+          Weiter
+          <span class="material-icons-round">arrow_forward</span>
+        </button>
+      } @else {
+        <button class="btn btn-primary" (click)="create()" [disabled]="isCreating">
+          @if (isCreating) {
+            <span class="material-icons-round spinning">sync</span>
+            Wird erstellt...
+          } @else {
+            <span class="material-icons-round">rocket_launch</span>
+            DYGPT erstellen
+          }
+        </button>
+      }
+    </div>
+  </div>
+</div>

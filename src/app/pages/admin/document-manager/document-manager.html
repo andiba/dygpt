@@ -1,0 +1,84 @@
+@if (gpt) {
+  <a routerLink="/admin" class="back-link">
+    <span class="material-icons-round">arrow_back</span>
+    Zurück zur Übersicht
+  </a>
+
+  <div class="doc-header">
+    <div>
+      <h1>
+        <span class="header-icon" [style.background]="gpt.color">{{ gpt.icon }}</span>
+        {{ gpt.displayName }} — Dokumente
+      </h1>
+      <p>Verwalte die Wissensbasis für diesen DYGPT</p>
+    </div>
+    <div class="doc-header-actions">
+      <button class="btn btn-outline" (click)="reindex()">
+        <span class="material-icons-round">refresh</span>
+        Neu indexieren
+      </button>
+      <button class="btn btn-outline" (click)="loadDocuments()">
+        <span class="material-icons-round">sync</span>
+        Aktualisieren
+      </button>
+    </div>
+  </div>
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+    <span class="material-icons-round upload-icon">cloud_upload</span>
+    <p class="upload-title">Dateien hierher ziehen</p>
+    <p class="upload-hint">oder klicken zum Auswählen</p>
+    <input type="file" multiple (change)="onFilesSelected($event)" class="file-input" #fileInput>
+    <button class="btn btn-primary btn-sm" (click)="fileInput.click()" style="margin-top: 12px;">
+      <span class="material-icons-round">attach_file</span>
+      Dateien auswählen
+    </button>
+    <p class="upload-formats">PDF, DOCX, TXT, MD, HTML · Max 50 MB pro Datei</p>
+  </div>
+
+  @if (isUploading) {
+    <div class="upload-status">
+      <span class="material-icons-round spinning">sync</span>
+      {{ uploadProgress }}
+    </div>
+  }
+
+  <!-- Document List -->
+  <div class="doc-list-header">
+    <h2>Hochgeladene Dokumente</h2>
+    <span class="doc-count">{{ documents.length }} Dokument(e)</span>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <span class="material-icons-round spinning">sync</span>
+      Dokumente werden geladen...
+    </div>
+  } @else if (documents.length === 0) {
+    <div class="empty-state">
+      <span class="material-icons-round">folder_open</span>
+      <p>Noch keine Dokumente. Lade oben Dateien hoch um die Wissensbasis zu füllen.</p>
+    </div>
+  } @else {
+    <div class="doc-list">
+      @for (doc of documents; track doc.externalId || doc.name) {
+        <div class="doc-item">
+          <span class="material-icons-round doc-icon">description</span>
+          <div class="doc-info">
+            <span class="doc-name">{{ doc.externalId || doc.name || 'Unbekannt' }}</span>
+            <span class="doc-meta">{{ formatSize(doc.size) }}</span>
+          </div>
+          <button class="btn btn-icon" (click)="deleteDocument(doc)" title="Löschen">
+            <span class="material-icons-round" style="color: var(--dy-danger);">delete</span>
+          </button>
+        </div>
+      }
+    </div>
+  }
+} @else {
+  <div style="text-align: center; padding: 80px;">
+    <p>DYGPT nicht gefunden.</p>
+    <a routerLink="/admin" class="btn btn-primary" style="margin-top: 16px;">Zurück</a>
+  </div>
+}

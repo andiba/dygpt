@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://master-docufy-ai.dev.tp-platform.de",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

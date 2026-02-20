@@ -1,0 +1,81 @@
+<nav class="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <span class="logo-icon">🤖</span>
+    <span class="logo-text">DYGPT</span>
+  </div>
+
+  <!-- Main Nav -->
+  <div class="sidebar-nav">
+    <a routerLink="/chat" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <span class="material-icons-round">chat</span>
+      <span>Chat</span>
+    </a>
+    <a routerLink="/admin" routerLinkActive="active" class="nav-item">
+      <span class="material-icons-round">dashboard</span>
+      <span>Admin</span>
+    </a>
+  </div>
+
+  <!-- GPT List with Conversations -->
+  <div class="sidebar-section">
+    <div class="section-title">Meine DYGPTs</div>
+    @for (gpt of gpts; track gpt.name) {
+      <div class="gpt-group">
+        <!-- GPT Header -->
+        <button class="gpt-item" (click)="navigateToChat(gpt.chatbotName)">
+          <span class="gpt-icon" [style.background]="gpt.color">{{ gpt.icon }}</span>
+          <div class="gpt-info">
+            <span class="gpt-name">{{ gpt.displayName }}</span>
+            <span class="gpt-meta">{{ getConversationCount(gpt.chatbotName) }} Unterhaltungen</span>
+          </div>
+        </button>
+
+        <!-- Conversations list -->
+        @if (getConversations(gpt.chatbotName).length > 0) {
+          <div class="conv-list">
+            @for (conv of getVisibleConversations(gpt.chatbotName); track conv.id) {
+              <button class="conv-item" [class.active]="isActiveConversation(gpt.chatbotName, conv.id)" (click)="openConversation(gpt.chatbotName, conv.id)">
+                <span class="material-icons-round conv-icon">forum</span>
+                <div class="conv-info">
+                  <span class="conv-date">{{ getFormattedDate(conv.id) }}</span>
+                </div>
+              </button>
+            }
+
+            <!-- Show more / less -->
+            @if (hasMoreConversations(gpt.chatbotName)) {
+              <button class="conv-toggle" (click)="toggleExpand(gpt.chatbotName)">
+                <span class="material-icons-round">{{ isExpanded(gpt.chatbotName) ? 'expand_less' : 'expand_more' }}</span>
+                <span>{{ isExpanded(gpt.chatbotName) ? 'Weniger' : (getConversations(gpt.chatbotName).length - 3) + ' weitere' }}</span>
+              </button>
+            }
+          </div>
+        }
+
+        <!-- New conversation button -->
+        <button class="conv-new" (click)="navigateToChat(gpt.chatbotName)">
+          <span class="material-icons-round">add</span>
+          <span>Neue Unterhaltung</span>
+        </button>
+      </div>
+    }
+    @empty {
+      <div class="empty-hint">
+        Noch keine DYGPTs erstellt
+      </div>
+    }
+  </div>
+
+  <!-- Bottom Actions -->
+  <div class="sidebar-bottom">
+    <a routerLink="/admin/new" class="nav-item create-btn">
+      <span class="material-icons-round">add_circle</span>
+      <span>Neuer DYGPT</span>
+    </a>
+    <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+      <span class="material-icons-round">settings</span>
+      <span>Einstellungen</span>
+    </a>
+  </div>
+</nav>

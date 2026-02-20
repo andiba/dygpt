@@ -1,0 +1,103 @@
+@if (gpt) {
+  <a routerLink="/admin" class="back-link">
+    <span class="material-icons-round">arrow_back</span>
+    Zurück zur Übersicht
+  </a>
+
+  <div class="detail-header">
+    <span class="detail-icon" [style.background]="gpt.color">{{ gpt.icon }}</span>
+    <div class="detail-info">
+      <h1>{{ gpt.displayName }}</h1>
+      <p>{{ gpt.description }}</p>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-primary" (click)="openChat()">
+        <span class="material-icons-round">chat</span>
+        Chat öffnen
+      </button>
+      <a [routerLink]="['/admin', gpt.name, 'documents']" class="btn btn-outline">
+        <span class="material-icons-round">folder</span>
+        Dokumente
+      </a>
+      <button class="btn btn-outline" (click)="toggleEdit()">
+        <span class="material-icons-round">{{ editMode ? 'close' : 'edit' }}</span>
+        {{ editMode ? 'Abbrechen' : 'Bearbeiten' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h3><span class="material-icons-round">info</span> Übersicht</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Erstellt am</span>
+          <span class="info-value">{{ gpt.creationDate | date:'dd.MM.yyyy HH:mm' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Dokumente</span>
+          <span class="info-value">{{ gpt.documentsCount || 0 }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Sichtbarkeit</span>
+          <span class="info-value">{{ gpt.visibility === 'all' ? 'Alle' : gpt.visibility === 'team' ? 'Team' : 'Privat' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Sprache</span>
+          <span class="info-value">{{ gpt.language }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <h3><span class="material-icons-round">psychology</span> System-Prompt</h3>
+      @if (editMode) {
+        <textarea class="form-control" [(ngModel)]="gpt.systemPrompt" rows="8"></textarea>
+        <div class="edit-actions">
+          <button class="btn btn-primary btn-sm" (click)="save()" [disabled]="saving">
+            <span class="material-icons-round">{{ saving ? 'sync' : 'save' }}</span>
+            {{ saving ? 'Speichern...' : 'Speichern' }}
+          </button>
+        </div>
+      } @else {
+        <pre class="prompt-display">{{ gpt.systemPrompt }}</pre>
+      }
+    </div>
+
+    <div class="detail-card">
+      <h3><span class="material-icons-round">engineering</span> Technische Details</h3>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <span class="tech-label">Chatbot</span>
+          <code>{{ gpt.chatbotName }}</code>
+        </div>
+        <div class="tech-item">
+          <span class="tech-label">Document Pool</span>
+          <code>{{ gpt.documentPoolName }}</code>
+        </div>
+        <div class="tech-item">
+          <span class="tech-label">Search Index</span>
+          <code>{{ gpt.searchIndexName }}</code>
+        </div>
+        <div class="tech-item">
+          <span class="tech-label">Promptlet</span>
+          <code>{{ gpt.promptletName }}</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="danger-zone">
+    <h3><span class="material-icons-round">warning</span> Gefahrenzone</h3>
+    <p>Das Löschen entfernt den DYGPT und alle zugehörigen Ressourcen unwiderruflich.</p>
+    <button class="btn btn-danger" (click)="deleteGpt()">
+      <span class="material-icons-round">delete_forever</span>
+      DYGPT endgültig löschen
+    </button>
+  </div>
+} @else {
+  <div style="text-align: center; padding: 80px;">
+    <p>DYGPT nicht gefunden.</p>
+    <a routerLink="/admin" class="btn btn-primary" style="margin-top: 16px;">Zurück zur Übersicht</a>
+  </div>
+}

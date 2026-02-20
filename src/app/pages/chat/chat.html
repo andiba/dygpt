@@ -1,0 +1,111 @@
+<div class="chat-page">
+  @if (!currentGpt) {
+    <!-- No GPT selected - Welcome Screen -->
+    <div class="welcome-screen">
+      <div class="welcome-content">
+        <img src="logo.png" alt="DYGPT Logo" class="welcome-logo" width="1696" height="608">
+        <h1>Willkommen bei DYGPT</h1>
+        <p>Wähle einen DYGPT in der Seitenleiste oder erstelle einen neuen.</p>
+
+        @if (gpts.length > 0) {
+          <div class="gpt-grid">
+            @for (gpt of gpts; track gpt.name) {
+              <button class="gpt-card" (click)="selectGpt(gpt)">
+                <span class="gpt-card-icon" [style.background]="gpt.color">{{ gpt.icon }}</span>
+                <span class="gpt-card-name">{{ gpt.displayName }}</span>
+                <span class="gpt-card-desc">{{ gpt.description }}</span>
+              </button>
+            }
+          </div>
+        } @else {
+          <a routerLink="/admin/new" class="btn btn-primary" style="margin-top: 20px;">
+            <span class="material-icons-round">add_circle</span>
+            Ersten DYGPT erstellen
+          </a>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- Chat Interface -->
+    <div class="chat-container">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <span class="chat-header-icon" [style.background]="currentGpt.color">{{ currentGpt.icon }}</span>
+        <div class="chat-header-info">
+          <h2>{{ currentGpt.displayName }}</h2>
+          <span class="chat-header-meta">{{ currentGpt.description }}</span>
+        </div>
+        <div class="chat-header-actions">
+          <button class="btn btn-outline btn-sm" (click)="newConversation()">
+            <span class="material-icons-round">refresh</span>
+            Neu starten
+          </button>
+        </div>
+      </div>
+
+      <!-- Index Status Banner -->
+      @if (isIndexing) {
+        <div class="index-banner animate-fade-in">
+          <div class="index-banner-content">
+            <span class="material-icons-round spinning">sync</span>
+            <div>
+              <strong>Der Chatbot wird konfiguriert...</strong>
+              <p>Die Dokumente werden gerade indexiert. Du kannst den Chat bereits nutzen, aber die Suche in Dokumenten funktioniert erst, wenn die Indexierung abgeschlossen ist.</p>
+            </div>
+          </div>
+          <div class="index-banner-status">
+            <span class="status-dot"></span>
+            Status: {{ indexStatus }}
+          </div>
+        </div>
+      }
+
+      <!-- Messages -->
+      <div class="chat-messages" #messagesContainer>
+        @for (msg of messages; track $index) {
+          <div class="message" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
+            @if (msg.role === 'assistant') {
+              <span class="message-avatar" [style.background]="currentGpt.color">{{ currentGpt.icon }}</span>
+            }
+            <div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.bot-bubble]="msg.role === 'assistant'">
+              <div class="message-content" [innerHTML]="msg.content | markdown"></div>
+              <div class="message-time">{{ msg.timestamp | date:'HH:mm' }}</div>
+            </div>
+          </div>
+        }
+
+        @if (isLoading) {
+          <div class="message assistant">
+            <span class="message-avatar" [style.background]="currentGpt.color">{{ currentGpt.icon }}</span>
+            <div class="message-bubble bot-bubble">
+              <div class="typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-area">
+        <div class="chat-input-wrapper">
+          <textarea
+            #messageInput
+            class="chat-input"
+            [(ngModel)]="currentMessage"
+            (keydown)="onKeydown($event)"
+            placeholder="Nachricht eingeben..."
+            rows="1"
+          ></textarea>
+          <button
+            class="send-btn"
+            (click)="sendMessage()"
+            [disabled]="!currentMessage.trim() || isLoading"
+          >
+            <span class="material-icons-round">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

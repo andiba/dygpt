@@ -1,0 +1,76 @@
+<div class="page-header">
+  <div>
+    <h1>Meine DYGPTs</h1>
+    <p>Erstelle und verwalte deine Custom DYGPTs</p>
+  </div>
+  <a routerLink="/admin/new" class="btn btn-primary">
+    <span class="material-icons-round">add_circle</span>
+    Neuen DYGPT erstellen
+  </a>
+</div>
+
+@if (gpts.length === 0) {
+  <div class="empty-state">
+    <span class="empty-icon">📦</span>
+    <h2>Noch keine DYGPTs</h2>
+    <p>Erstelle deinen ersten DYGPT und fülle ihn mit Dokumenten und Wissen.</p>
+    <a routerLink="/admin/new" class="btn btn-primary" style="margin-top: 16px;">
+      <span class="material-icons-round">add_circle</span>
+      Jetzt erstellen
+    </a>
+  </div>
+} @else {
+  <div class="gpt-grid">
+    @for (gpt of gpts; track gpt.name) {
+      <div class="gpt-card" (click)="openGpt(gpt)">
+        <div class="gpt-card-header">
+          <span class="gpt-icon" [style.background]="gpt.color">{{ gpt.icon }}</span>
+          <div class="gpt-card-info">
+            <h3>{{ gpt.displayName }}</h3>
+            <p>{{ gpt.description || 'Keine Beschreibung' }}</p>
+          </div>
+        </div>
+
+        <div class="gpt-card-stats">
+          <div class="stat">
+            <span class="material-icons-round">description</span>
+            {{ gpt.documentsCount || 0 }} Dokumente
+          </div>
+          <div class="stat">
+            <span class="material-icons-round">schedule</span>
+            {{ gpt.creationDate | date:'dd.MM.yyyy' }}
+          </div>
+          <div class="stat">
+            <span class="material-icons-round">visibility</span>
+            {{ gpt.visibility === 'all' ? 'Alle' : gpt.visibility === 'team' ? 'Team' : 'Privat' }}
+          </div>
+        </div>
+
+        <div class="gpt-card-resources">
+          <div class="resource">
+            <span class="material-icons-round">inventory_2</span>
+            <code>{{ gpt.documentPoolName }}</code>
+          </div>
+          <div class="resource">
+            <span class="material-icons-round">manage_search</span>
+            <code>{{ gpt.searchIndexName }}</code>
+          </div>
+        </div>
+
+        <div class="gpt-card-actions">
+          <button class="btn btn-sm btn-primary" (click)="chatWith(gpt, $event)">
+            <span class="material-icons-round">chat</span>
+            Chat
+          </button>
+          <a [routerLink]="['/admin', gpt.name, 'documents']" class="btn btn-sm btn-outline" (click)="$event.stopPropagation()">
+            <span class="material-icons-round">folder</span>
+            Dokumente
+          </a>
+          <button class="btn btn-sm btn-outline" style="margin-left: auto; color: var(--dy-danger);" (click)="deleteGpt(gpt, $event)">
+            <span class="material-icons-round">delete</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+}
