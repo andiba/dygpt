@@ -10,11 +10,11 @@
 
       <!-- Department Info -->
       <div class="settings-section">
-        <h3><span class="material-icons-round">business</span> Abteilung</h3>
+        <h3><span class="material-icons-round">business</span> Bereich</h3>
 
         <div class="form-group">
-          <label>Abteilungsname</label>
-          <input class="form-control" [(ngModel)]="deptName" placeholder="Name der Abteilung">
+          <label>Bereichsname</label>
+          <input class="form-control" [(ngModel)]="deptName" placeholder="Name des Bereichs">
         </div>
       </div>
 
@@ -23,8 +23,8 @@
         <h3><span class="material-icons-round">cloud</span> Verbindung</h3>
         <div class="readonly-hint">
           <span class="material-icons-round">info</span>
-          Diese Werte wurden bei der Erstellung der Abteilung festgelegt und können auf der
-          <a routerLink="/departments">Abteilungs-Seite</a> verwaltet werden.
+          Diese Werte wurden bei der Einrichtung des Bereichs festgelegt und können auf der
+          <a routerLink="/departments">Bereichs-Seite</a> verwaltet werden.
         </div>
 
         <div class="form-group">
@@ -91,11 +91,11 @@
         </div>
       }
     } @else {
-      <p class="subtitle">Keine Abteilung aktiv.</p>
+      <p class="subtitle">Kein Bereich aktiv.</p>
       <div class="actions">
         <button class="btn btn-primary" (click)="goToDepartments()">
           <span class="material-icons-round">business</span>
-          Abteilung wählen
+          Bereich wählen
         </button>
       </div>
     }
@@ -104,7 +104,7 @@
     <div class="dept-link">
       <a routerLink="/departments">
         <span class="material-icons-round">swap_horiz</span>
-        Abteilungen verwalten
+        Bereiche verwalten
       </a>
     </div>
   </div>

@@ -84,7 +84,7 @@ export class DepartmentSelector implements OnInit {
 
   deleteDepartment(event: Event, dept: Department) {
     event.stopPropagation();
-    if (!confirm(`Abteilung "${dept.name}" wirklich entfernen? Alle lokalen DYGPT-Daten dieser Abteilung gehen verloren.`)) return;
+    if (!confirm(`Bereich "${dept.name}" wirklich entfernen? Alle lokalen DYGPT-Daten dieses Bereichs gehen verloren.`)) return;
     this.tenantService.removeDepartment(dept.id);
     this.departments = this.tenantService.getDepartments();
   }

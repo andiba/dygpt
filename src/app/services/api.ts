@@ -254,10 +254,12 @@ export class ApiService {
   uploadDocuments(documentPool: string, files: File[]): Observable<any> {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
-    const metadataJson = JSON.stringify([{
-      initialDocumentPools: [documentPool],
-      additionalDocumentPools: [documentPool]
-    }]);
+    const metadataJson = JSON.stringify(
+      files.map(() => ({
+        initialDocumentPools: [documentPool],
+        additionalDocumentPools: [documentPool]
+      }))
+    );
     const metadataBlob = new Blob([metadataJson], { type: 'application/json' });
     formData.append('metadata', metadataBlob, 'metadata.json');
     return this.http.post(

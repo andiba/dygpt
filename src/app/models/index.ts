@@ -8,7 +8,7 @@ export interface Department {
   name: string;            // z.B. "Marketing", "HR", "Produktentwicklung"
   baseUrl: string;         // Backend-URL
   tenant: string;          // Backend Tenant-Name
-  apiKey: string;          // x-api-key für diese Abteilung
+  apiKey: string;          // x-api-key für diesen Bereich
   embeddingModel: string;  // Embedding-Model für neue Search Indices
   createdAt: string;       // ISO 8601
 }

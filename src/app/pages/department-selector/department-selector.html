@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="dept-header">
       <img src="logo.png" alt="DYGPT Logo" class="dept-logo" width="1696" height="608">
-      <h1>Abteilung wählen</h1>
-      <p>Wähle eine bestehende Abteilung oder richte eine neue ein.</p>
+      <h1>Bereich wählen</h1>
+      <p>Wähle einen bestehenden Bereich oder richte einen neuen ein.</p>
     </div>
 
     <!-- Department Cards -->
@@ -29,7 +29,7 @@
     <!-- Setup Form -->
     @if (showSetupForm) {
       <div class="dept-form">
-        <h2>Abteilung einrichten</h2>
+        <h2>Bereich einrichten</h2>
         <p class="form-hint-block">
           <span class="material-icons-round">info</span>
           Der Mandant muss zuvor im Docufy AI Service angelegt worden sein.
@@ -37,7 +37,7 @@
         </p>
 
         <div class="form-group">
-          <label>Abteilungsname</label>
+          <label>Bereichsname</label>
           <input type="text" class="form-control" [(ngModel)]="newDept.name"
                  (ngModelChange)="onNameChange()" placeholder="z.B. Marketing, HR, Entwicklung">
           <div class="form-hint">Ein frei wählbarer Name für die Anzeige in der App</div>
@@ -54,7 +54,7 @@
           <label>Tenant / Mandant</label>
           <input type="text" class="form-control" [(ngModel)]="newDept.tenant"
                  placeholder="Der Name des Mandanten">
-          <div class="form-hint">Wird automatisch aus dem Abteilungsnamen vorgeschlagen – kann manuell angepasst werden</div>
+          <div class="form-hint">Wird automatisch aus dem Bereichsnamen vorgeschlagen – kann manuell angepasst werden</div>
         </div>
 
         <div class="form-group">
@@ -79,14 +79,14 @@
                   [disabled]="!newDept.name || !newDept.tenant || !newDept.apiKey"
                   (click)="setupDepartment()">
             <span class="material-icons-round">check</span>
-            Abteilung einrichten
+            Bereich einrichten
           </button>
         </div>
       </div>
     } @else {
       <button class="btn btn-primary dept-create-btn" (click)="toggleSetupForm()">
         <span class="material-icons-round">add_circle</span>
-        Abteilung einrichten
+        Bereich einrichten
       </button>
     }
   </div>
